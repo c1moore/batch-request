@@ -34,5 +34,6 @@
     "request",
     "http",
     "utility"
-  ]
+  ],
+  "license": "ISC"
 }

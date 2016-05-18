@@ -17,7 +17,7 @@ describe('header options', function() {
             defaultHeaders: {
                 'default1': 'default1_value'
             },
-            forwardHeaders: ['forward1']
+            forwardHeaders: ['forward1', 'dependency1']
         });
         done();
     });
@@ -98,6 +98,40 @@ describe('header options', function() {
                     expect(err).to.not.exist;
                     expect(res.body).to.have.property('getHeader');
                     expect(res.body.getHeader.statusCode).to.equal(404);
+                    done();
+                });
+        });
+
+        it('Headers for both calles exist when dependency exists', function(done) {
+            request(app)
+                .post('/batch')
+                .set('forward1', 'forward1_value')
+                .set('dependency1', 'dependency1_value')
+                .send({
+                    getHeader: {
+                        url: 'http://localhost:3000/header/forward1',
+                        dependency: 'dependencyEndpoint'
+                    },
+                    dependencyEndpoint: {
+                        url: 'http://localhost:3000/header/dependency1'
+                    }
+                })
+                .expect(200, function(err, res) {
+                    expect(err).to.not.exist;
+                    expect(res.body).to.have.property('getHeader');
+                    expect(res.body.getHeader.statusCode).to.equal(200);
+                    expect(res.body.getHeader.body).to.be.a('string');
+                    var obj = JSON.parse(res.body.getHeader.body);
+                    expect(obj.value).to.be.a('string');
+                    expect(obj.value).to.be.equal('forward1_value');
+
+                    expect(res.body).to.have.property('dependencyEndpoint');
+                    expect(res.body.dependencyEndpoint.statusCode).to.equal(200);
+                    expect(res.body.dependencyEndpoint.body).to.be.a('string');
+                    var obj2 = JSON.parse(res.body.dependencyEndpoint.body);
+                    expect(obj2.value).to.be.a('string');
+                    expect(obj2.value).to.be.equal('dependency1_value');
+
                     done();
                 });
         });

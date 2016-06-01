@@ -1,0 +1,45 @@
+{
+    "uploadFile1" : {
+        "method"  : "POST",
+        "uri"     : "http://localhost:8400/v1/files",
+        "headers" : {
+            "Authorization" : "sWPa9C8dF6242euB4aH3k9sda58nXNhW"
+        },
+        "form"    : {
+            "base64"      : "data:text/*;base64,YWJjCg==",
+            "filename"    : "garth_batch_base64_test1",
+            "container"   : "public-temp",
+            "deleteAfter" : 120
+        }
+    },
+    "uploadFile1" : {
+        "method"  : "POST",
+        "uri"     : "http://localhost:8400/v1/files",
+        "headers" : {
+            "Authorization" : "sWPa9C8dF6242euB4aH3k9sda58nXNhW"
+        },
+        "form"    : {
+            "base64"      : "data:text/plain;base64,ZGVmCg==",
+            "filename"    : "garth_batch_base64_test2",
+            "container"   : "public-temp",
+            "deleteAfter" : 120
+        }
+    },
+    "emailLink"   : {
+        "dependency" : [
+            "uploadFile1",
+            "uploadFile2"
+        ],
+        "method"     : "POST",
+        "uri"        : "http://localhost:8400/v1/email",
+        "headers"    : {
+            "Authorization" : "sWPa9C8dF6242euB4aH3k9sda58nXNhW"
+        },
+        "form"       : {
+            "from"    : "no-reply@privateappmail.com",
+            "to"      : "garth@weeverapps.com",
+            "subject" : "batch test",
+            "html"    : "Your files are at <a href=\"${dependency[0].body.file.url}\">${dependency[0].body.file.name}</a> and <a href=\"${dependency[1].body.file.url}\">${dependency[1].body.file.name}</a>."
+        }
+    }
+}

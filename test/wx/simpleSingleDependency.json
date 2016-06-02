@@ -1,0 +1,11 @@
+{
+    "getFiles" : {
+        "method" : "GET",
+        "uri"    : "http://localhost:8404"
+    },
+    "getPdf"   : {
+        "dependency" : "getFiles",
+        "method"     : "GET",
+        "uri"        : "http://localhost:8402"
+    }
+}

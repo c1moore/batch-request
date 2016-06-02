@@ -1,0 +1,29 @@
+{
+    "uploadFile" : {
+        "method"  : "POST",
+        "uri"     : "http://localhost:8400/v1/files",
+        "headers" : {
+            "Authorization" : "sWPa9C8dF6242euB4aH3k9sda58nXNhW"
+        },
+        "form"    : {
+            "base64"      : "data:text/plain;base64,ZGVmCg==",
+            "filename"    : "garth_batch_base64_test",
+            "container"   : "public-temp",
+            "deleteAfter" : 120
+        }
+    },
+    "emailLink"  : {
+        "dependency" : "uploadFile",
+        "method"     : "POST",
+        "uri"        : "http://localhost:8400/v1/email",
+        "headers"    : {
+            "Authorization" : "sWPa9C8dF6242euB4aH3k9sda58nXNhW"
+        },
+        "form"       : {
+            "from"    : "no-reply@privateappmail.com",
+            "to"      : "garth@weeverapps.com",
+            "subject" : "batch test",
+            "html"    : "01 Your file is at <a href=\"${dependency.body.file.url}\">${dependency.body.file.name}</a>."
+        }
+    }
+}

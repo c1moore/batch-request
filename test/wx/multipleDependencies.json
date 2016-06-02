@@ -39,6 +39,7 @@
             "from"    : "no-reply@privateappmail.com",
             "to"      : "garth@weeverapps.com",
             "subject" : "batch test",
+            "test"    : "${dependency[0].headers.etag} ${dependency[1].headers.etag}",
             "html"    : "Your files are at <a href=\"${dependency[0].body.file.url}\">${dependency[0].body.file.name}</a> and <a href=\"${dependency[1].body.file.url}\">${dependency[1].body.file.name}</a>."
         }
     }

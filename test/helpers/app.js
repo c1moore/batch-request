@@ -37,15 +37,28 @@ function getApp(options) {
     });
 
     app.post('/users/:id/deep', function(req, res) {
-        res.json({
-            email: chance.email(),
-            mixed: {
-                name: chance.name(),
-                deep: {
-                    foo: 'bar'
+        if(req.body.email && req.body.name) {
+            res.json({
+                email: req.body.email,
+                mixed: {
+                    name: req.body.name,
+                    deep: {
+                        foo: 'bar'
+                    }
                 }
-            }
-        });
+            });
+        }
+        else {
+            res.json({
+                email: chance.email(),
+                mixed: {
+                    name: chance.name(),
+                    deep: {
+                        foo: 'bar'
+                    }
+                }
+            });
+        }
     });
 
     app.get('/users/:id/email', function(req, res) {

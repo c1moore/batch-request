@@ -370,5 +370,81 @@ describe('batch', function() {
                 });
 
         });
+
+        it('can use multiple dependencies', function(done) {
+            var start = new Date().getTime();
+            request(app)
+                .post('/batch')
+                .send({
+                    time1: {
+                        url: 'http://localhost:3000/users/1/delay'
+                    },
+                    time2: {
+                        url: 'http://localhost:3000/users/1/delay'
+                    },
+                    time3: {
+                        dependency: ['time1', 'time2'],
+                        url: 'http://localhost:3000/users/1/hammertime'
+                    }
+                })
+                .expect(200, function(err, res) {
+                    expect(err).to.not.exist;
+                    expect(res.body.time1.body).to.be.above(start + 250);
+                    expect(res.body.time2.body).to.be.above(start + 250);
+                    var greaterTime = (res.body.time1.body > res.body.time2.body) ? res.body.time1.body : res.body.time2.body;
+                    expect(res.body.time3.body).to.be.above(greaterTime);
+                    done();
+                });
+        });
+
+        it('can use results from a dependency', function(done) {
+            request(app)
+                .post('/batch')
+                .send({
+                    getName: {
+                        url: 'http://localhost:3000/users/1/name'
+                    },
+                    reflectedName: {
+                        dependency: ['getName'],
+                        method: 'POST',
+                        body: { first: '${dependency[0].body.split(\' \')[0]}' },
+                        json: true,
+                        url: 'http://localhost:3000/users/1/name'
+                    }
+                })
+                .expect(200, function(err, res) {
+                    expect(err).to.not.exist;
+                    expect(res.body.getName.body.split(' ')[0]).to.equal(res.body.reflectedName.body);
+                    done();
+                });
+        });
+
+        it('can use results from multiple dependencies', function(done) {
+            request(app)
+                .post('/batch')
+                .send({
+                    getEmail: {
+                        url: 'http://localhost:3000/users/1/email'
+                    },
+                    getName: {
+                        url: 'http://localhost:3000/users/1/name'
+                    },
+                    deepReflection: {
+                        dependency: ['getEmail', 'getName'],
+                        method: 'POST',
+                        body: { email: '${dependency[0].body}', name: '${dependency[1].body}' },
+                        json: true,
+                        url: 'http://localhost:3000/users/1/deep'
+                    }
+                })
+                .expect(200, function(err, res) {
+                    expect(err).to.not.exist;
+                    expect(res.body.deepReflection.body.email).to.equal(res.body.getEmail.body);
+                    expect(res.body.deepReflection.body.mixed.name).to.equal(res.body.getName.body);
+                    done();
+                });
+        });
+
     });
+
 });

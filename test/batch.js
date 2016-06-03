@@ -145,9 +145,7 @@ describe('batch', function() {
                     expect(err).to.not.exist;
                     expect(res.body).to.have.property('getName');
                     expect(res.body.getName.statusCode).to.equal(200);
-                    expect(res.body.getName.body).to.be.a('string');
-                    var obj = JSON.parse(res.body.getName.body);
-                    expect(obj.mixed.deep.foo).to.equal('bar');
+                    expect(res.body.getName.body.mixed.deep.foo).to.equal('bar');
                     done();
                 });
         });
@@ -165,10 +163,8 @@ describe('batch', function() {
                     expect(err).to.not.exist;
                     expect(res.body).to.have.property('getName');
                     expect(res.body.getName.statusCode).to.equal(200);
-                    expect(res.body.getName.body).to.be.a('string');
                     expect(res.body.getName).to.have.property('headers');
-                    var obj = JSON.parse(res.body.getName.body);
-                    expect(obj.mixed.deep.foo).to.equal('bar');
+                    expect(res.body.getName.body.mixed.deep.foo).to.equal('bar');
                     done();
                 });
         });
@@ -272,7 +268,7 @@ describe('batch', function() {
                     var now = new Date().getTime();
                     // Expect first one to finish within
                     expect(res.body.time1.body).to.be.within(now - 1000, now + 1000);
-                    expect(res.body.time2.body).to.be.above(res.body.time1.body + 500);
+                    expect(res.body.time2.body).to.be.above(res.body.time1.body);
                     done();
                 });
 
@@ -321,8 +317,8 @@ describe('batch', function() {
                     expect(err).to.not.exist;
                     var now = new Date().getTime();
                     expect(res.body.time1.body).to.be.within(now - 1100, now + 1100);
-                    expect(res.body.time2.body).to.be.above(res.body.time1.body + 999);
-                    expect(res.body.time3.body).to.be.above(res.body.time2.body + 999);
+                    expect(res.body.time2.body).to.be.above(res.body.time1.body);
+                    expect(res.body.time3.body).to.be.above(res.body.time2.body);
                     done();
                 });
 
@@ -364,12 +360,12 @@ describe('batch', function() {
                     expect(err).to.not.exist;
                     var now = new Date().getTime();
                     expect(res.body.time1.body).to.be.within(now - 1100, now + 1100);
-                    expect(res.body.time2.body).to.be.above(res.body.time1.body + 999);
-                    expect(res.body.time3.body).to.be.above(res.body.time2.body + 999);
-                    expect(res.body.time4.body).to.be.above(res.body.time1.body + 999);
-                    expect(res.body.time5.body).to.be.above(res.body.time4.body + 999);
-                    expect(res.body.time6.body).to.be.above(res.body.time4.body + 999);
-                    expect(res.body.time7.body).to.be.above(res.body.time4.body + 999);
+                    expect(res.body.time2.body).to.be.above(res.body.time1.body);
+                    expect(res.body.time3.body).to.be.above(res.body.time2.body);
+                    expect(res.body.time4.body).to.be.above(res.body.time1.body);
+                    expect(res.body.time5.body).to.be.above(res.body.time4.body);
+                    expect(res.body.time6.body).to.be.above(res.body.time4.body);
+                    expect(res.body.time7.body).to.be.above(res.body.time4.body);
                     done();
                 });
 

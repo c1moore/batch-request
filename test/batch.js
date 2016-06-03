@@ -447,4 +447,23 @@ describe('batch', function() {
 
     });
 
+    describe('errors', function() {
+        it('returns errors in the body', function(done) {
+            request(app)
+                .post('/batch')
+                .send({
+                    urlThatDoesNotExist: {
+                        url: 'http://localhost:3000/i/do/not/exist'
+                    }
+                })
+                .expect(200, function(err, res) {
+                    expect(err).to.not.exist;
+                    expect(res.body.urlThatDoesNotExist).to.exist;
+                    expect(res.body.urlThatDoesNotExist.statusCode).to.equal(404);
+                    expect(res.body.urlThatDoesNotExist.headers).to.exist;
+                    expect(res.body.urlThatDoesNotExist.headers['x-powered-by']).to.equal('Express');
+                    done();
+                });
+        });
+    });
 });

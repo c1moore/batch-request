@@ -19,7 +19,7 @@ describe('validate', function() {
         appAllowed = require('./helpers/app')({
             port: 3001,
             allowedHosts: [
-                'socialradar.com',
+                'github.com',
                 'localhost:3001'
             ]
         });
@@ -98,10 +98,10 @@ describe('validate', function() {
                     .post('/batch')
                     .send({
                         allowedUrl1: {
-                            url: 'http://socialradar.com/developers'
+                            url: 'http://github.com'
                         },
                         allowedUrl2: {
-                            url: 'http://socialradar.com/about'
+                            url: 'http://github.com/about'
                         },
                         disallowedUrl: {
                             url: 'http://www.google.com'
@@ -119,13 +119,13 @@ describe('validate', function() {
                     .post('/batch')
                     .send({
                         allowedUrl1: {
-                            url: 'http://socialradar.com/developers'
+                            url: 'http://github.com'
                         },
                         allowedUrl2: {
-                            url: 'http://socialradar.com/about'
+                            url: 'http://github.com/about'
                         },
                         allowedUrl3: {
-                            url: 'http://socialradar.com/product'
+                            url: 'http://github.com/about/team'
                         }
                     })
                     .expect(200, function(err, res) {
@@ -139,13 +139,13 @@ describe('validate', function() {
                     .post('/batch')
                     .send({
                         allowedUrl1: {
-                            url: 'http://socialradar.com/developers'
+                            url: 'http://github.com'
                         },
                         allowedUrl2: {
-                            url: 'http://socialradar.com/about'
+                            url: 'http://github.com/about'
                         },
                         allowedUrl3: {
-                            url: 'http://socialradar.com/product'
+                            url: 'http://github.com/about/team'
                         },
                         testingLocalhost: {
                             url: 'http://localhost:3001/users/test/name'

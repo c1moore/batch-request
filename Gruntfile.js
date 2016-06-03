@@ -10,7 +10,7 @@ module.exports = function (grunt) {
         simplemocha: {
             options: {
                 globals: ['describe'],
-                timeout: 3000,
+                timeout: 10000,
                 reporter: 'spec',
                 ui: 'bdd'
             },

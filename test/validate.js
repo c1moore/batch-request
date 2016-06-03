@@ -170,7 +170,6 @@ describe('validate', function() {
                     }
                 })
                 .expect(400, function(err, res) {
-                    console.log('got error', err);
                     expect(err).to.be.null;
                     expect(res.body.error).to.exist;
                     expect(res.body.error.type).to.equal('ValidationError');

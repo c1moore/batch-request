@@ -166,14 +166,15 @@ describe('validate', function() {
                 .send({
                     bogusMethod: {
                         method: chance.word() + chance.word(),
-                        url: 'http://localhost:4000/users/1/name'
+                        url: 'http://localhost:3001/users/1/name'
                     }
                 })
                 .expect(400, function(err, res) {
+                    console.log('got error', err);
                     expect(err).to.be.null;
                     expect(res.body.error).to.exist;
                     expect(res.body.error.type).to.equal('ValidationError');
-                    done();
+                    done(err);
                 });
         });
 
@@ -191,7 +192,7 @@ describe('validate', function() {
                     expect(res.body.error.type).to.equal('ValidationError');
                     expect(res.body.error.message).to.equal('Invalid URL');
                     expect(res.body.error.request).to.equal('bogusUrl');
-                    done();
+                    done(err);
                 });
         });
 

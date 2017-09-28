@@ -80,6 +80,10 @@ function getApp(options) {
         }, 250);
     });
 
+    app.get('/header/bounce', function(req, res) {
+        return res.status(200).json(req.headers);
+    });
+
     app.get('/header/:name', function(req, res) {
         if ((req.params.name in req.headers)) {
             res.json({

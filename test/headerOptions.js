@@ -9,24 +9,24 @@ var _ = require('lodash'),
     methods = require('methods'),
     request = require('supertest');
 
-describe('header options', function() {
+describe('Header Options', function() {
     var app;
 
-    before(function(done) {
-        app = require('./helpers/app')({
-            defaultHeaders: {
-                'default1': 'default1_value'
-            },
-            forwardHeaders: ['forward1', 'dependency1']
-        });
-        done();
-    });
-
-    after(function(done) {
-        app.server.close(done);
-    });
-
     describe('defaultHeaders', function() {
+        before(function(done) {
+            app = require('./helpers/app')({
+                defaultHeaders: {
+                    'default1': 'default1_value'
+                }
+            });
+
+            done();
+        });
+
+        after(function(done) {
+            app.server.close(done);
+        });
+
         it('Header default1', function(done) {
             request(app)
                 .post('/batch')
@@ -63,6 +63,18 @@ describe('header options', function() {
     });
 
     describe('forwardHeaders', function() {
+        before(function(done) {
+            app = require('./helpers/app')({
+                forwardHeaders: ['forward1', 'dependency1']
+            });
+
+            done();
+        });
+
+        after(function(done) {
+            app.server.close(done);
+        });
+
         it('Header forward1 exists', function(done) {
             request(app)
                 .post('/batch')
@@ -123,6 +135,148 @@ describe('header options', function() {
                     expect(res.body.dependencyEndpoint.statusCode).to.equal(200);
                     expect(res.body.dependencyEndpoint.body.value).to.be.a('string');
                     expect(res.body.dependencyEndpoint.body.value).to.be.equal('dependency1_value');
+
+                    done();
+                });
+        });
+    });
+
+    describe('inheritHeaders', function() {
+        var createServer;
+        var defaultHeaders;
+        var requestBody;
+
+        beforeEach(function() {
+            createServer = function createServer(inheritHeaders) {
+                app = require('./helpers/app')({
+                    defaultHeaders: defaultHeaders,
+                    inheritHeaders: inheritHeaders
+                });
+            };
+
+            defaultHeaders = {
+                default1:   'default_value1',
+                default2:   'default_value2'
+            };
+
+            requestBody = {
+                request1:   {
+                    url:        'http://localhost:3000/header/bounce'
+                }
+            };
+        });
+
+        afterEach(function(done) {
+            app.server.close(done);
+        });
+
+        it('should skip inheriting headers when inheritHeaders is not specified', function(done) {
+            createServer();
+
+            request(app)
+                .post('/batch')
+                .set('Parent-Header', 'Parent_Only')
+                .send(requestBody)
+                .expect(200, function(error, res) {
+                    expect(error).to.not.exist;
+
+                    expect(res.body).to.have.property('request1');
+                    expect(res.body.request1.body).to.not.have.property('Parent-Header');
+
+                    done();
+                });
+        });
+
+        it('should skip inheriting headers when inheritHeaders is false', function(done) {
+            createServer(false);
+
+            request(app)
+                .post('/batch')
+                .set('Parent-Header', 'Parent_Only')
+                .send(requestBody)
+                .expect(200, function(error, res) {
+                    expect(error).to.not.exist;
+
+                    expect(res.body).to.have.property('request1');
+                    expect(res.body.request1.body).to.not.have.property('Parent-Header');
+
+                    done();
+                });
+        });
+
+        it('should skip headers that start with "Content-"', function(done) {
+            createServer(true);
+
+            request(app)
+                .post('/batch')
+                .set('Content-X-Type', 'Do NOT Inherit!')
+                .send(requestBody)
+                .expect(200, function(error, res) {
+                    expect(error).to.not.exist;
+
+                    expect(res.body).to.have.property('request1');
+                    expect(res.body.request1.body).to.not.have.property('Content-X-Type');
+
+                    done();
+                });
+        });
+
+        it('should skip headers that are redefined in the individual request', function(done) {
+            createServer(true);
+
+            requestBody.request1.headers = {
+                'overridden-header':    'Child Value'
+            };
+
+            request(app)
+                .post('/batch')
+                .set('overridden-header', 'Parent Value')
+                .send(requestBody)
+                .expect(200, function(error, res) {
+                    expect(error).to.not.exist;
+
+                    expect(res.body).to.have.property('request1');
+                    expect(res.body.request1.body).to.have.property('overridden-header').which.equals(requestBody.request1.headers['overridden-header']);
+
+                    done();
+                });
+        });
+
+        it('should add all other headers that are not defined in individual requests', function(done) {
+            var sharedCookieValue = 'Everybody\'s Cookie!';
+
+            createServer(true);
+
+            request(app)
+                .post('/batch')
+                .set('shared-cookie', sharedCookieValue)
+                .send(requestBody)
+                .expect(200, function(error, res) {
+                    expect(error).to.not.exist;
+
+                    expect(res.body).to.have.property('request1');
+                    expect(res.body.request1.body).to.have.property('shared-cookie').which.equals(sharedCookieValue);
+
+                    done();
+                });
+        });
+
+        it('should override default headers', function(done) {
+            var newDefaultValue = 'NotDefault';
+
+            createServer(true);
+
+            request(app)
+                .post('/batch')
+                .set('default1', newDefaultValue)
+                .set('default2', newDefaultValue)
+                .send(requestBody)
+                .expect(200, function(error, res) {
+                    expect(error).to.not.exist;
+
+                    expect(res.body).to.have.property('request1');
+                    expect(res.body.request1.body).to.have.property('default1').which.equals(newDefaultValue);
+                    expect(res.body.request1.body).to.have.property('default2').which.equals(newDefaultValue);
 
                     done();
                 });
